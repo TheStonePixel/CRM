@@ -19,38 +19,38 @@ export class CustomerService {
   }
 
     
-async create(req, res) {
-  const data = req.body;
-  const email = data.email;
+    async create(req, res) {
+      const data = req.body;
+      const email = data.email;
 
-  try {
-    const existing = await this.model.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ error: 'Customer with this email already exists' });
+      try {
+        const existing = await this.model.findOne({ email });
+        if (existing) {
+          return res.status(400).json({ error: 'Customer with this email already exists' });
+        }
+
+        const customer = await this.model.create(data);
+        res.status(201).json(customer);
+      } catch (err) {
+        console.log(err.message);
+        res.status(500).json({ error: 'Failed to create customer' });
+      }
     }
 
-    const customer = await this.model.create(data);
-    res.status(201).json(customer);
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ error: 'Failed to create customer' });
-  }
-}
 
+      async getAll(req, res) {
 
-  async getAll(req, res) {
-
-    try {
-      const customers = await this.model.find({});
-      res.json(customers);
-    } catch (err) {
-      res.status(500).json({ error: 'Failed to retrieve customers' });
+        try {
+          const customers = await this.model.find({});
+          res.json(customers);
+        } catch (err) {
+          res.status(500).json({ error: 'Failed to retrieve customers' });
+        }    
+         
     }
 
-  }
 
-
-  async getOne(req, res) {
+    async getOne(req, res) {
     const id = req.params.id;
     try {
         if (!validator.isEmail(id)) {
@@ -64,22 +64,23 @@ async create(req, res) {
         } catch (err) {
             res.status(500).json({ error: 'Failed to retrieve customer' });
         }
-  }
+    }
 
-async filter(req, res) {
-  const { tag, status } = req.query;
-  const query = {};
+    async filter(req, res) {
+      const { tag, status } = req.query;
+      const query = {};
 
-  if (tag) query.tags = { $in: [tag] }; // handles array fields correctly
-  if (status) query.status = status;
+      if (tag) query.tags = { $in: [tag] }; // handles array fields correctly
+      if (status) query.status = status;
 
-  try {
-    const results = await this.model.find(query);
-    res.json(results);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to filter customers' });
-  }
-}
+      try {
+        const results = await this.model.find(query);
+        res.json(results);
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to filter customers' });
+      }
+    }
+
 
 
 
@@ -112,6 +113,9 @@ async filter(req, res) {
       res.status(500).json({ error: 'Failed to delete customer' });
     }
   }
+    
+
+  
 
   getRouter() {
     return this.router;
